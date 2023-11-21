@@ -26,7 +26,7 @@ def openf(File) :
     spl=spl_gz
   else :
     readf=open(File)
-    spl=spl
+    spl=spl_nogz
   return (readf, spl)
 
 
@@ -40,10 +40,11 @@ def parseArguments():
     parser.add_argument('--a1_header',type=str,required=True,help="a1 header in inp files")
     parser.add_argument('--a2_header',type=str,required=True,help="a2 header in inp files")
     parser.add_argument('--se_header',type=str,required=True,help="se header in inp files")
-    parser.add_argument('--n_header',type=str,help="n header in inp files", required=True)
+    parser.add_argument('--beta_header',type=str,required=True,help="se header in inp files")
+    parser.add_argument('--n_header',type=str,help="n header in inp files", required=False)
     parser.add_argument('--chro_header',type=str,required=True,help="n header in inp files")
     parser.add_argument('--bp_header',type=str,help="bp header", required = True)
-    parser.add_argument('--beta_header',type=str,required=True,help="beta header in inp files")
+    parser.add_argument('--n',type=int,required=False,help="beta header in inp files")
     parser.add_argument('--file_rschrbp',type=str,required=False,help="chr bp rs")
     parser.add_argument('--just_listpos',type=int,default=0)
     args = parser.parse_args()
@@ -75,8 +76,15 @@ betah=header.index(args.beta_header)
 chroh=header.index(args.chro_header)
 freqh=header.index(args.freq_header)
 bph=header.index(args.bp_header)
-nh=[header.index(x) for x in args.n_header.split(',')]
-print(nh)
+if  args.n_header :
+  nh=[header.index(x) for x in args.n_header.split(',')]
+  balisenval=True
+elif args.n :
+  balisenval=False
+  nval=args.n
+else :
+  sys.exit("error not n or header n")
+
 ph=header.index(args.pval_header)
 
 balisejustpos=args.just_listpos==1
@@ -85,8 +93,14 @@ headgcta=["SNP","A1","A2","freq","b","se","p", "N"]
 
 
 write_sum=open(args.out, 'w')
-" "
 write_sum.write(" ".join(headgcta)+'\n')
+def check_val(a) :
+ try :
+   float(a)
+   return True
+ except :
+   return False
+
 for r in readsum :
    splr=split(r)
    chro=splr[chroh]
@@ -98,7 +112,12 @@ for r in readsum :
    se=splr[seh]
    p=splr[ph]
    frq=splr[freqh]
-   n=sum([int(splr[x]) for x in nh])
+   if check_val(p)==False or  check_val(beta)==False :
+      continue
+   if balisenval :
+     n=sum([int(splr[x]) for x in nh])
+   else :
+     n=nval
    plotrs=1
    if balise_changers :
     chrbp=chro+':'+bp

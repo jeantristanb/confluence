@@ -1,8 +1,11 @@
+include {strmem} from './utils.nf'
+
 process format_sumstat{
  input :
-    tuple path(sumstat), path(infofile), val(out)
+    tuple path(sumstat), path(infofile), val(outdir),val(outpat)
+ publishDir "${params.output_dir}/$outdir/",  mode:'copy'
  output :
-   path(out)
+   path(outpat)
  script :
    //  format_gcta.py: error: the following arguments are required: --sumstat, --freq_header, --se_header, --n_header, --chro_header, --bp_header, --beta_header
     chrbpheader=""
@@ -16,13 +19,17 @@ process format_sumstat{
     chrbpheader=(params.sumstat_head_se=="") ? chrbpheader : " ${chrbpheader}  --se_header ${params.sumstat_head_se} "
     chrbpheader= (params.sumstat_head_freq=="") ? chrbpheader:" ${chrbpheader} --freq_header ${params.sumstat_head_freq} "
     chrbpheader=(params.sumstat_head_n=="") ? chrbpheader:" ${chrbpheader}   --n_header ${params.sumstat_head_n} "
+    chrbpheader=(params.sumstat_n=="") ? chrbpheader:" ${chrbpheader}   --n ${params.sumstat_n} "
     infofile = (infofile.toString()!="01" && infofile.toString()!="02")  ? " --file_rschrbp $infofile " : ""
     """
-    format_gcta.py $chrbpheader $infofile --out $out --sumstat $sumstat --just_listpos $params.gcta_justlistpos
+    format_gcta.py $chrbpheader $infofile --out $outpat --sumstat $sumstat --just_listpos $params.gcta_justlistpos
     """
 }
 
 process run_gctb_sumstat {
+ memory { strmem(params.memory_gctb) + 5.GB * (task.attempt -1) }
+ errorStrategy { task.exitStatus in 130..150 ? 'retry' : 'terminate' }
+ maxRetries 10
  input :
     path(sumstat)
     path(ld_bin)
@@ -35,8 +42,9 @@ process run_gctb_sumstat {
    output=out+'_gctb'
    tmpld=ld_bin.join(",")
    println tmpld
+   gctbimp=(params.gctb_impute_n==0) ? "" : " --impute-n "
    """
    echo $tmpld|awk -F\",\" '{for(cmt=1;cmt<=NF;cmt++)print \$cmt}' | sed 's/.bin\$//g' > tmp.mldmlist
-   ${params.gctb_bin} --gwas-summary $sumstat --bayes ${params.gctb_bayesmod} --hsq  ${params.gctb_hsqinit} --wind ${params.gctb_wind_mb} --maf ${params.sumstat_maf} --out ${output} --mldm tmp.mldmlist
+   ${params.gctb_bin} --gwas-summary $sumstat --sbayes ${params.gctb_bayesmod} --hsq  ${params.gctb_hsqinit} --wind ${params.gctb_wind_mb} --maf ${params.sumstat_maf} --out ${output} --mldm tmp.mldmlist ${params.gctb_otheroption} $gctbimp | tee -a $output".txt"
    """
 }
