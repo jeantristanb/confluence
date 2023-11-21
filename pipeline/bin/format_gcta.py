@@ -6,10 +6,10 @@ from scipy import stats
 import gzip
 import os
 
-def spl_gz(z,sep) :
+def spl_gz(z,sep=None) :
    return z.decode('utf-8').replace('\n','').split(sep)
 
-def spl_nogz(z,sep) :
+def spl_nogz(z,sep=None) :
    return z.replace('\n','').split(sep)
 
 def openf(File) :
@@ -45,6 +45,7 @@ def parseArguments():
     parser.add_argument('--bp_header',type=str,help="bp header", required = True)
     parser.add_argument('--beta_header',type=str,required=True,help="beta header in inp files")
     parser.add_argument('--file_rschrbp',type=str,required=False,help="chr bp rs")
+    parser.add_argument('--just_listpos',type=int,default=0)
     args = parser.parse_args()
     return args
 
@@ -65,7 +66,7 @@ if args.file_rschrbp :
 
 (readsum,split)=openf(args.sumstat)
 
-header=split(openf(readsum.readline()))
+header=split(readsum.readline())
 rsh=header.index(args.rs_header)
 a1h=header.index(args.a1_header)
 a2h=header.index(args.a2_header)
@@ -74,30 +75,38 @@ betah=header.index(args.beta_header)
 chroh=header.index(args.chro_header)
 freqh=header.index(args.freq_header)
 bph=header.index(args.bp_header)
-nh=[head.index(x) for x in args.n_header.split()]
+nh=[header.index(x) for x in args.n_header.split(',')]
+print(nh)
 ph=header.index(args.pval_header)
 
+balisejustpos=args.just_listpos==1
 #SNP A1 A2 freq b se p N 
 headgcta=["SNP","A1","A2","freq","b","se","p", "N"]
 
 
 write_sum=open(args.out, 'w')
+" "
+write_sum.write(" ".join(headgcta)+'\n')
 for r in readsum :
    splr=split(r)
    chro=splr[chroh]
    bp=splr[bph]
    a1=splr[a1h]
-   a2=splr[a1h]
+   a2=splr[a2h]
    rs=splr[rsh]
    beta=splr[betah]
    se=splr[seh]
    p=splr[ph]
    frq=splr[freqh]
-   n=sum([int(x) for x in nh])
+   n=sum([int(splr[x]) for x in nh])
+   plotrs=1
    if balise_changers :
     chrbp=chro+':'+bp
     if chrbp in dic_rs :
        rs=dic_rs[chrbp]
-   write_sum.write(" ".join([rs,a1,a2,freq, beta, se, p,str(n)])+'\n')
+    elif balisejustpos :
+       plotrs=0
+   if plotrs== 1 :
+     write_sum.write(" ".join([rs,a1,a2,frq, beta, se, p,str(n)])+'\n')
 write_sum.close()
 
