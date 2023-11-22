@@ -1,4 +1,10 @@
 /*return dummy dir for file null*/
+def errormess(message,exitn=0){
+    if(message=="")return(0)
+    println(message)
+    System.exit(exitn)
+}
+
 def getdummy_dir(){
   filescript=file(workflow.scriptFile)
   projectdir="${filescript.getParent()}"

@@ -3,7 +3,7 @@ include {strmem} from './utils.nf'
 process format_sumstat{
  input :
     tuple path(sumstat), path(infofile), val(outdir),val(outpat)
- publishDir "${params.output_dir}/$outdir/",  mode:'copy'
+ publishDir "$outdir/",  mode:'copy'
  output :
    path(outpat)
  script :
@@ -37,7 +37,7 @@ process run_gctb_sumstat {
     val(out)
  publishDir "${params.output_dir}/gctb/",  mode:'copy'
  output :
-   path("output*")
+   path("$output*")
  script :
    output=out+'_gctb'
    tmpld=ld_bin.join(",")
