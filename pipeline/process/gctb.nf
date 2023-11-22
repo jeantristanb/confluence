@@ -48,3 +48,57 @@ process run_gctb_sumstat {
    ${params.gctb_bin} --gwas-summary $sumstat --sbayes ${params.gctb_bayesmod} --hsq  ${params.gctb_hsqinit} --wind ${params.gctb_wind_mb} --maf ${params.sumstat_maf} --out ${output} --mldm tmp.mldmlist ${params.gctb_otheroption} $gctbimp | tee -a $output".txt"
    """
 }
+
+process interpolate_ld{
+   input :
+    tuple val(chr), path(map), path(bim), val(outdir), val(outpat)
+   publishDir "$outdir/",  mode:'copy'
+   output :
+    tuple val(chr),path(outputres)
+  script :
+     outputres = outpat+'.'+chr+'.pos.gz'
+     """
+     interpolate_maps.py --chro $chr --bim $bim --map $map --out $outputres
+     """
+}
+process shrunkld {
+ memory { strmem(params.memory_gctb) + 5.GB * (task.attempt -1) }
+ errorStrategy { task.exitStatus in 130..150 ? 'retry' : 'terminate' }
+ maxRetries 10
+ input :
+  tuple val(chr), path(map), path(bed),path(fam),path(bim), val(outdir), val(outpat)
+  publishDir "$outdir/",  mode:'copy'
+  output : 
+//afr_ld__19.ldm.shrunk.bin   afr_ld__19.ldm.shrunk.info  
+   tuple val(chr), path("${outputres}.ldm.shrunk.bin"), path("${outputres}.ldm.shrunk.info"), emit : res
+   path("$outputres*"), emit:all
+  script :
+   outputres="${outpat}_$chr"
+   plk=bed.baseName
+   """
+   zcat $map >tmpmap
+    plink -bfile $plk --make-bed --keep-allele-order --chr $chr -out $outputres
+    gctb --bfile $outputres \
+     --make-shrunk-ldm \
+     --gen-map tmpmap \
+     --out $outputres 
+   rm ${outputres}.bed ${outputres}.bim ${outputres}.fam tmpmap
+   """
+}
+
+process sparceld_aftshrunk{
+ memory { strmem(params.memory_gctb) + 5.GB * (task.attempt -1) }
+ errorStrategy { task.exitStatus in 130..150 ? 'retry' : 'terminate' }
+  input :
+   tuple val(chr),path(bin), path(info), val(outdir), val(outpat)
+  output :
+   tuple val(chr), path("${outputres}.*.bin"), path("${outputres}.*.info"), emit : res
+   path("$outputres*"), emit:all
+  script :
+   println bin
+   head=bin.baseName
+   outputres="${outpat}_$chr"
+  """ 
+  gctb --ldm $head --make-sparse-ldm --chisq 0 --out $outputres
+  """
+}
