@@ -91,6 +91,7 @@ process sparceld_aftshrunk{
  errorStrategy { task.exitStatus in 130..150 ? 'retry' : 'terminate' }
   input :
    tuple val(chr),path(bin), path(info), val(outdir), val(outpat)
+  publishDir "$outdir/",  mode:'copy'
   output :
    tuple val(chr), path("${outputres}.*.bin"), path("${outputres}.*.info"), emit : res
    path("$outputres*"), emit:all

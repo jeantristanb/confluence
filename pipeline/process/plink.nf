@@ -58,10 +58,10 @@ process clean_plink{
   range=(snp_exclude=="01" || snp_exclude=="02" || snp_exclude=="03") ? "" : " --exclude range $snp_exclude "
   range2=(snp_include=="01" || snp_include=="02" ||snp_include=="03") ? "" : " --extract range $snp_include "
   maf=(params.plink_maf==0) ? "" : " --maf ${params.plink_maf}"
-  geno=(params.plink_geno==0) ? "" : " --geno "
-  hwe=(params.plink_hwe==0) ? "" : "--hwe ${params.plink_hwe} "
+  geno=(params.plink_geno<0) ? "" : " --geno $params.plink_geno"
+  hwe=(params.plink_hwe<0) ? "" : "--hwe ${params.plink_hwe} "
   """
-  plink --bfile $bfile --threads ${params.cpu_plink}  $range --make-bed --out $outfile $maf --keep $indkeep --keep-allele-order $range2 $geno 
+  plink --bfile $bfile --threads ${params.cpu_plink}  $range --make-bed --out $outfile $maf --keep $indkeep --keep-allele-order $range2 $geno --snps-only  just-acgt $hwe
   """
 }
 
