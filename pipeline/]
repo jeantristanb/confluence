@@ -82,33 +82,11 @@ build ld used for heritability, bin info, clean SNPs
 ### example run pipeline 
  * using `bfile` from 1000 Genome vcf hg19 in plink
  * extract individual without relatdness using information
-
-Created file without inbredding
-see :  `confluence/buildld/afr_1000g/extract_ind_afr_v2.r`
-
 ```
-fileind=confluence/buildld/afr_1000g/list_afr_noappar.ind
-```
-
-### genomic reference
+## su
+fileind=/home/jeantristan/Cancer/BC_gwas/confluence/confluence/buildld/afr_1000g/list_afr_noappar.ind
 
 ```
-wget -c ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/working/20130507_omni_recombination_rates/ASW_omni_recombination_20130507.tar
-tar -xf ASW_omni_recombination_20130507.tar
-```
-
-```
-echo "chro,file" > list_map.csv
-ls confluence/buildld/afr_1000g/ASW/*.gz|awk -F "-" '{print $(NF-1)","$0}' >> list_map.csv
-```
-
-### run pipeline
- * no missing data, 2M positions, hwe 0.0001
-
-```
-nextflow confluence/pipeline/main.nf --model gctb_ld --bfile ~/Data/1000Geno/AllVCF_Genome/1000GPlk/1000Plk   --gctb_keepind $fileind -profile slurmSingularity -resume --plink_geno 0.0 --output_pat afr_ld_2M --output_dir afr_ld_2M  --list_map list_map.csv --memory_gctb "100GB" --plink_hwe 0.0001 --plink_shuffle 2000000
-```
-
 
 
 #run on dna-nexus
