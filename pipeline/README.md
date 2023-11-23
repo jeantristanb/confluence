@@ -1,9 +1,18 @@
 # Run GCTB to estimate heritability
+## run :
+* used by default singularity image see [dockerhub](https://hub.docker.com/repository/docker/jeantristanb/confluence) and [github](https://github.com/jeantristanb/confluence_docker)
+* profile :
+ * slurmSingularity
+ * batch
+ * ...
+ * dna nexus need to test
+
+## model 
 * option to defined action of script : `--model` :
   * `gctb` : run gctb to estimated ld [default]
   * `gctb_ld` : build ld matrix
-
 ## general option 
+* general option
  * `output_pat` : output of pattern
  * `output_dir` : directory outpuyt
  * `gctb_bin` [gctb]
