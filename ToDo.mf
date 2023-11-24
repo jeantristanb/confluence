@@ -1,0 +1,4 @@
+Todo :
+ * add thread option
+ * test bayes
+ * check build_ld and parameter
