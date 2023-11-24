@@ -119,6 +119,8 @@ nextflow confluence/pipeline/main.nf --model gctb_ld --bfile ~/Data/1000Geno/All
 ```
 
 
+## ressource :
+*  `interpolate_ld` : script modify  of 
 
 #run on dna-nexus
 

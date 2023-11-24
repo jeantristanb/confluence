@@ -103,3 +103,12 @@ process sparceld_aftshrunk{
   gctb --ldm $head --make-sparse-ldm --chisq 0 --out $outputres
   """
 }
+/*
+process comparison_maf {
+  label 'R'
+  
+
+
+
+
+}*/
