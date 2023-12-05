@@ -32,6 +32,8 @@
    * nvalue can be done as argument or header of sumstat:
     * `sumstat_head_n` : one or n header, separated by header
     * `sumstat_n` :  n values [int]
+ * `gctb_impute_n` : option to impute n, see `--impute-n` in gctb [default 0]
+ * `gctb_exclude_mhc` : option to impute n, see `--exclude-mhc` in gctb [default 0]
  * matrice ld :
   * `gctb_ld_bin` :  file contained list of ld build with gctb, extension bin
   * `gctb_ld_info` :  file contained list of info of `gctb_ld_bin` build with gctb, extension bin 

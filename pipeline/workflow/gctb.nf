@@ -42,6 +42,7 @@ workflow build_ld {
 
 
 workflow gctb {
+  println "other option : "+ params.gctb_otheroption
   sumstat=channel.fromPath(params.sumstat, checkIfExists:true)
   if(params.update_rsid!='')rsidfile=channel.fromPath(params.update_rsid, checkIfExists:true)
   format_sumstat(sumstat.combine(rsidfile).combine(channel.from("${params.output_dir}/sumstat_format")).combine(channel.from(params.output_pat+'.sumstat')))

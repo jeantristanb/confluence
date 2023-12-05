@@ -29,6 +29,7 @@ process format_sumstat{
 process run_gctb_sumstat {
  memory { strmem(params.memory_gctb) + 5.GB * (task.attempt -1) }
  errorStrategy { task.exitStatus in 130..150 ? 'retry' : 'terminate' }
+ cpus params.cpu_gctb
  maxRetries 10
  input :
     path(sumstat)
@@ -43,9 +44,10 @@ process run_gctb_sumstat {
    tmpld=ld_bin.join(",")
    println tmpld
    gctbimp=(params.gctb_impute_n==0) ? "" : " --impute-n "
+   mhc=(params.gctb_exclude_mhc==1) ? " --exclude-mhc " : ""
    """
    echo $tmpld|awk -F\",\" '{for(cmt=1;cmt<=NF;cmt++)print \$cmt}' | sed 's/.bin\$//g' > tmp.mldmlist
-   ${params.gctb_bin} --gwas-summary $sumstat --sbayes ${params.gctb_bayesmod} --hsq  ${params.gctb_hsqinit} --wind ${params.gctb_wind_mb} --maf ${params.sumstat_maf} --out ${output} --mldm tmp.mldmlist ${params.gctb_otheroption} $gctbimp | tee -a $output".txt"
+   ${params.gctb_bin} $mhc $gctbimp --gwas-summary $sumstat --sbayes ${params.gctb_bayesmod} --hsq  ${params.gctb_hsqinit} --wind ${params.gctb_wind_mb} --maf ${params.sumstat_maf} --out ${output} --mldm tmp.mldmlist ${params.gctb_otheroption} $gctbimp   --thread ${params.cpu_gctb}  &> >(tee  $output".txt" >&2)
    """
 }
 
@@ -104,11 +106,15 @@ process sparceld_aftshrunk{
   """
 }
 /*
-process comparison_maf {
+process stat_maf {
   label 'R'
-  
+  input : 
+    path(sunstat)  
+    path(info)
+  output :
+    path("${output}*")
+  """
 
-
-
+  """
 
 }*/
