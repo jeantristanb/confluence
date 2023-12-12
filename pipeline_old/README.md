@@ -1,4 +1,5 @@
 # Run GCTB to estimate heritability
+**Pipeline had been moved in https://github.com/jeantristanb/confluence_heritability**
 ## run :
 * used by default singularity image see [dockerhub](https://hub.docker.com/repository/docker/jeantristanb/confluence) and [github](https://github.com/jeantristanb/confluence_docker)
 * profile :
